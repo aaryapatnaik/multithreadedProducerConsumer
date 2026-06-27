@@ -145,8 +145,13 @@ int main(void)
 
     double elapsedTime = (endTime.tv_sec - startTime.tv_sec) + (endTime.tv_nsec - startTime.tv_nsec) / 1000000000.0;
 
+    int totalItems = PRODUCER_COUNT * ITEMS_PER_PRODUCER;
+    double throughput = totalItems / elapsedTime;
+
     printf("All producer and consumer threads completed.\n");
     printf("Execution time: %.6f seconds\n", elapsedTime);
+    printf("Total items processed: %d\n", totalItems);
+    printf("Throughput: %.2f items/second\n", throughput);
 
     destroyBuffer();
 
