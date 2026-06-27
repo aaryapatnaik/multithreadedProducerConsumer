@@ -103,6 +103,40 @@ int main(void)
     printf("Consumer threads: %d\n", CONSUMER_COUNT);
     printf("Items per producer: %d\n\n", ITEMS_PER_PRODUCER);
 
+    pthread_t producers[PRODUCER_COUNT];
+    pthread_t consumers[CONSUMER_COUNT];
+
+    int producerIds[PRODUCER_COUNT];
+    int consumerIds[CONSUMER_COUNT];
+
+    for (int i = 0; i < PRODUCER_COUNT; i++) {
+        producerIds[i] = i;
+
+        if (pthread_create(&producers[i], NULL, producerThread, &producerIds[i]) != 0) {
+            perror("pthread_create producer");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    for (int i = 0; i < CONSUMER_COUNT; i++) {
+        consumerIds[i] = i;
+
+        if (pthread_create(&consumers[i], NULL, consumerThread, &consumerIds[i]) != 0) {
+            perror("pthread_create consumer");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    for (int i = 0; i < PRODUCER_COUNT; i++) {
+        pthread_join(producers[i], NULL);
+    }
+
+    for (int i = 0; i < CONSUMER_COUNT; i++) {
+        pthread_join(consumers[i], NULL);
+    }
+
+    printf("All producer and consumer threads completed.\n");
+
     destroyBuffer();
 
     return 0;
