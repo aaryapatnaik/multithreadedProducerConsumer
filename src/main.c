@@ -94,6 +94,12 @@ void *consumerThread(void *argument)
 int main(void)
 {
     initializeBuffer();
+
+    struct timespec startTime;
+    struct timespec endTime;
+
+    clock_gettime(CLOCK_MONOTONIC, &startTime);
+
     printf("=========================================\n");
     printf("Producer Consumer Benchmark\n");
     printf("=========================================\n\n");
@@ -135,7 +141,12 @@ int main(void)
         pthread_join(consumers[i], NULL);
     }
 
+    clock_gettime(CLOCK_MONOTONIC, &endTime);
+
+    double elapsedTime = (endTime.tv_sec - startTime.tv_sec) + (endTime.tv_nsec - startTime.tv_nsec) / 1000000000.0;
+
     printf("All producer and consumer threads completed.\n");
+    printf("Execution time: %.6f seconds\n", elapsedTime);
 
     destroyBuffer();
 
