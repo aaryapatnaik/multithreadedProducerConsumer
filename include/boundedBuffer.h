@@ -20,4 +20,9 @@ void destroyBuffer(void);
 void *producerThread(void *argument);
 void *consumerThread(void *argument);
 
+void initializeSemaphoreBuffer(void);
+void destroySemaphoreBuffer(void);
+void *semaphoreProducerThread(void *argument);
+void *semaphoreConsumerThread(void *argument);
+
 #endif
