@@ -1,22 +1,14 @@
 #include "../include/boundedBuffer.h"
 
-int main(void)
+void runBenchmark(
+    const char *benchmarkName,
+    void (*initializeFunction)(void),
+    void (*destroyFunction)(void),
+    void *(*producerFunction)(void *),
+    void *(*consumerFunction)(void *)
+)
 {
-    initializeBuffer();
-
-    struct timespec startTime;
-    struct timespec endTime;
-
-    clock_gettime(CLOCK_MONOTONIC, &startTime);
-
-    printf("=========================================\n");
-    printf("Producer Consumer Benchmark\n");
-    printf("=========================================\n\n");
-
-    printf("Buffer size: %d\n", BUFFER_SIZE);
-    printf("Producer threads: %d\n", PRODUCER_COUNT);
-    printf("Consumer threads: %d\n", CONSUMER_COUNT);
-    printf("Items per producer: %d\n\n", ITEMS_PER_PRODUCER);
+    initializeFunction();
 
     pthread_t producers[PRODUCER_COUNT];
     pthread_t consumers[CONSUMER_COUNT];
@@ -24,10 +16,15 @@ int main(void)
     int producerIds[PRODUCER_COUNT];
     int consumerIds[CONSUMER_COUNT];
 
+    struct timespec startTime;
+    struct timespec endTime;
+
+    clock_gettime(CLOCK_MONOTONIC, &startTime);
+
     for (int i = 0; i < PRODUCER_COUNT; i++) {
         producerIds[i] = i;
 
-        if (pthread_create(&producers[i], NULL, producerThread, &producerIds[i]) != 0) {
+        if (pthread_create(&producers[i], NULL, producerFunction, &producerIds[i]) != 0) {
             perror("pthread_create producer");
             exit(EXIT_FAILURE);
         }
@@ -36,7 +33,7 @@ int main(void)
     for (int i = 0; i < CONSUMER_COUNT; i++) {
         consumerIds[i] = i;
 
-        if (pthread_create(&consumers[i], NULL, consumerThread, &consumerIds[i]) != 0) {
+        if (pthread_create(&consumers[i], NULL, consumerFunction, &consumerIds[i]) != 0) {
             perror("pthread_create consumer");
             exit(EXIT_FAILURE);
         }
@@ -59,12 +56,40 @@ int main(void)
     int totalItems = PRODUCER_COUNT * ITEMS_PER_PRODUCER;
     double throughput = totalItems / elapsedTime;
 
-    printf("All producer and consumer threads completed.\n");
+    printf("%s\n", benchmarkName);
     printf("Execution time: %.6f seconds\n", elapsedTime);
     printf("Total items processed: %d\n", totalItems);
-    printf("Throughput: %.2f items/second\n", throughput);
+    printf("Throughput: %.2f items/second\n\n", throughput);
 
-    destroyBuffer();
+    destroyFunction();
+}
+
+int main(void)
+{
+    printf("=========================================\n");
+    printf("Producer Consumer Benchmark\n");
+    printf("=========================================\n\n");
+
+    printf("Buffer size: %d\n", BUFFER_SIZE);
+    printf("Producer threads: %d\n", PRODUCER_COUNT);
+    printf("Consumer threads: %d\n", CONSUMER_COUNT);
+    printf("Items per producer: %d\n\n", ITEMS_PER_PRODUCER);
+
+    runBenchmark(
+        "Mutex + Condition Variables",
+        initializeBuffer,
+        destroyBuffer,
+        producerThread,
+        consumerThread
+    );
+
+    runBenchmark(
+        "Semaphores",
+        initializeSemaphoreBuffer,
+        destroySemaphoreBuffer,
+        semaphoreProducerThread,
+        semaphoreConsumerThread
+    );
 
     return 0;
 }
