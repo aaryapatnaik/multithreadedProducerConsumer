@@ -91,5 +91,13 @@ int main(void)
         semaphoreConsumerThread
     );
 
+    runBenchmark(
+        "Spinlock",
+        initializeSpinlockBuffer,
+        destroySpinlockBuffer,
+        spinlockProducerThread,
+        spinlockConsumerThread
+    );
+
     return 0;
 }

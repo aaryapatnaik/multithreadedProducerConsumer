@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdatomic.h>
+#include <stdbool.h>
 
 #define BUFFER_SIZE 8
 #define PRODUCER_COUNT 4

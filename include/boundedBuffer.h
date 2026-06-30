@@ -25,4 +25,9 @@ void destroySemaphoreBuffer(void);
 void *semaphoreProducerThread(void *argument);
 void *semaphoreConsumerThread(void *argument);
 
+void initializeSpinlockBuffer(void);
+void destroySpinlockBuffer(void);
+void *spinlockProducerThread(void *argument);
+void *spinlockConsumerThread(void *argument);
+
 #endif
